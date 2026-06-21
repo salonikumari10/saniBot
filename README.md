@@ -1,13 +1,13 @@
 # saniBot
 
 SaniBot is an IoT-based sanitization robot that combines UV-C and mist-based disinfection, ultrasonic sensors obstacle avoidance and Edge AI-powered human detection. It is controlled wirelessly through a built-in web page hosted on an ESP32 with live video streaming and human-detection through ESP32-CAM module over a UART bridge.
-
+##  ROBOT
 <img width="1200" height="1600" alt="lightImage" src="https://github.com/user-attachments/assets/21ea59fb-0af1-42b2-b263-6ffcbb4fe85f" />
 <img width="1263" height="688" alt="saniImage2" src="https://github.com/user-attachments/assets/69869386-9c3b-42b7-a4fa-06ebc73b05a6" />
 
 
 SaniBot automates the process using a dual sanitization mode means use of UV-C light and mist spray both while ensuring user safety through real-time monitoring and human detection that automatically disables UV-C exposure whenever a person is nearby.
-
+##  WEBPAGE
 <img width="1366" height="768" alt="webPageImage" src="https://github.com/user-attachments/assets/1ac4844f-9434-48ed-8807-624a311155c8" />
 
 # Features
