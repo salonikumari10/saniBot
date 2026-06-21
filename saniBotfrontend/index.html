@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="eng">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>SaniBot</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.1.0"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+ 
+<!--  MODE SELECTION POPUP  -->
+<div id="popup-overlay">
+  <div id="popup-box">
+    <h2>Select Robot's Movement</h2>
+    <p>Robot will move either manully or automatically</p>
+    <div class="popup-btn-row">
+      <button class="popup-btn auto-pick" onclick="selectModeAndClose('AUTO')">
+        <span class="icon">🤖</span>
+        <span>AUTO</span>
+        <span style="font-size:0.65rem;font-weight:400;color:var(--muted)">Movement will be based on sensor's data</span>
+      </button>
+      <button class="popup-btn manual-pick" onclick="selectModeAndClose('MANUAL')">
+        <span class="icon">🕹️</span>
+        <span>MANUAL</span>
+        <span style="font-size:0.65rem;font-weight:400;color:var(--muted)">User will controll the movement</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+ 
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-left">
+      <h1>SANIBOT DASHBOARD</h1>
+      <p>UART Bridge between ESP32CAM & ESP32</p>
+    </div>
+    <div class="pill"><span class="dot"></span><span id="connStatus">ONLINE</span></div>
+  </div>
+ 
+  <!-- STATUS STRIP -->
+  <div class="strip">
+    <div class="strip-item">
+      <div class="s-label">Action</div>
+      <div class="s-val" id="cmdDisp">IDLE</div>
+    </div>
+    <div class="strip-item">
+      <div class="s-label">Mode</div>
+      <div class="s-val" id="modeDisp">AUTO</div>
+    </div>
+
+    <div class="strip-item">
+      <div class="s-label">Front</div>
+      <div class="s-val s-ok" id="obsDisp">--</div>
+    </div>
+    <div class="strip-item">
+      <div class="s-label">Objects</div>
+      <div class="s-val"><span id="count-badge">0</span></div>
+    </div>
+  </div>
+ 
+  <!-- MAIN 2-COLUMN GRID -->
+  <div class="main-grid">
+ 
+    <!-- LEFT COLUMN -->
+    <div class="col">
+ 
+      <!-- Camera card -->
+      <div class="card">
+        <div class="card-lbl">Camera &amp; Object Detection</div>
+        <img id="ShowImage" src="" style="display:none">
+        <canvas id="canvas" width="320" height="240"></canvas>
+        <div class="cam-controls">
+          <button class="cam-btn" id="restart">Restart CAM</button>
+          <button class="cam-btn" id="getStill" style="display:none">▶ Start Detect</button>
+        </div>
+        <div id="result"></div>
+
+        <!-- Camera Settings (below camera) -->
+        <div class="cam-settings">
+          <div class="card-lbl" style="margin-top:12px;">Camera Settings</div>
+ 
+          <div class="select-row">
+            <span class="setting-label">Object</span>
+            <select id="object" onchange="count.innerHTML=''">
+              <option value="person">person</option><option value="bicycle">bicycle</option>
+              <option value="car">car</option><option value="motorcycle">motorcycle</option>
+              <option value="bus">bus</option><option value="truck">truck</option>
+              <option value="cat">cat</option><option value="dog">dog</option>
+              <option value="bottle">bottle</option><option value="cup">cup</option>
+              <option value="chair">chair</option><option value="couch">couch</option>
+              <option value="laptop">laptop</option><option value="cell phone">cell phone</option>
+              <option value="book">book</option><option value="clock">clock</option>
+              <option value="toothbrush">toothbrush</option>
+              <option value="airplane">airplane</option><option value="train">train</option>
+              <option value="traffic light">traffic light</option><option value="fire hydrant">fire hydrant</option>
+              <option value="stop sign">stop sign</option><option value="bench">bench</option>
+              <option value="bird">bird</option><option value="horse">horse</option>
+              <option value="sheep">sheep</option><option value="cow">cow</option>
+              <option value="elephant">elephant</option><option value="bear">bear</option>
+              <option value="zebra">zebra</option><option value="giraffe">giraffe</option>
+              <option value="backpack">backpack</option><option value="umbrella">umbrella</option>
+              <option value="handbag">handbag</option><option value="suitcase">suitcase</option>
+              <option value="sports ball">sports ball</option><option value="skateboard">skateboard</option>
+              <option value="surfboard">surfboard</option><option value="tennis racket">tennis racket</option>
+              <option value="wine glass">wine glass</option><option value="fork">fork</option>
+              <option value="knife">knife</option><option value="spoon">spoon</option>
+              <option value="bowl">bowl</option><option value="banana">banana</option>
+              <option value="apple">apple</option><option value="sandwich">sandwich</option>
+              <option value="pizza">pizza</option><option value="donut">donut</option>
+              <option value="cake">cake</option><option value="potted plant">potted plant</option>
+              <option value="bed">bed</option><option value="dining table">dining table</option>
+              <option value="toilet">toilet</option><option value="tv">tv</option>
+              <option value="mouse">mouse</option><option value="remote">remote</option>
+              <option value="keyboard">keyboard</option><option value="microwave">microwave</option>
+              <option value="oven">oven</option><option value="sink">sink</option>
+              <option value="refrigerator">refrigerator</option><option value="vase">vase</option>
+              <option value="scissors">scissors</option><option value="teddy bear">teddy bear</option>
+              <option value="hair drier">hair drier</option>
+            </select>
+          </div>
+ 
+          <div class="select-row">
+            <span class="setting-label">Score</span>
+            <select id="score">
+              <option value="1.0">1.0</option><option value="0.9">0.9</option>
+              <option value="0.8">0.8</option><option value="0.7">0.7</option>
+              <option value="0.6">0.6</option><option value="0.5">0.5</option>
+              <option value="0.4">0.4</option><option value="0.3">0.3</option>
+              <option value="0.2">0.2</option><option value="0.1">0.1</option>
+              <option value="0" selected>0</option>
+            </select>
+            <span class="setting-label" style="width:42px">Mirror</span>
+            <select id="mirrorimage">
+              <option value="1">Yes</option><option value="0">No</option>
+            </select>
+          </div>
+           <div class="select-row">
+            <span class="setting-label">Resolution</span>
+            <select id="framesize">
+              <option value="UXGA">UXGA 1600×1200</option>
+              <option value="SXGA">SXGA 1280×1024</option>
+              <option value="XGA">XGA 1024×768</option>
+              <option value="SVGA">SVGA 800×600</option>
+              <option value="VGA">VGA 640×480</option>
+              <option value="CIF">CIF 400×296</option>
+              <option value="QVGA" selected>QVGA 320×240</option>
+              <option value="HQVGA">HQVGA 240×176</option>
+              <option value="QQVGA">QQVGA 160×120</option>
+            </select>
+          </div>
+ 
+          <div class="setting-row">
+            <span class="setting-label">Flash</span>
+            <input type="range" id="flash" min="0" max="255" value="0">
+            <span class="setting-val" id="fv">0</span>
+          
+            <span class="setting-label">Quality</span>
+            <input type="range" id="quality" min="10" max="63" value="10">
+            <span class="setting-val" id="qv">10</span>
+          </div>
+
+          <div class="setting-row">
+            <span class="setting-label">Brightness</span>
+            <input type="range" id="brightness" min="-2" max="2" value="0">
+            <span class="setting-val" id="bv">0</span>      
+
+            <span class="setting-label">Contrast</span>
+            <input type="range" id="contrast" min="-2" max="2" value="0">
+            <span class="setting-val" id="cv">0</span>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- Mode Select card -->
+      <div class="card">
+        <div class="card-lbl">Operating Mode</div>
+        <div class="mode-row">
+          <button class="mode-btn auto-on" id="btnAuto"   onclick="setMode('AUTO')">🤖 Auto Drive</button>
+          <button class="mode-btn"         id="btnManual" onclick="setMode('MANUAL')">🕹️ Manual</button>
+        </div>
+      </div>
+ 
+      <!-- Direction Control card -->
+      <div class="card">
+        <div class="card-lbl">Direction Control</div>
+        <div class="dpad">
+          <div class="dp-empty"></div>
+          <button class="dp" id="bF"
+            onpointerdown="sendSani('FORWARD')" onpointerup="sendSani('STOP')"
+            ontouchstart="sendSani('FORWARD')"  ontouchend="sendSani('STOP')">▲</button>
+          <div class="dp-empty"></div>
+ 
+          <button class="dp" id="bL"
+            onpointerdown="sendSani('LEFT')"    onpointerup="sendSani('STOP')"
+            ontouchstart="sendSani('LEFT')"     ontouchend="sendSani('STOP')">◀</button>
+          <button class="dp dp-stop" onclick="sendSani('STOP')">STOP</button>
+          <button class="dp" id="bR"
+            onpointerdown="sendSani('RIGHT')"   onpointerup="sendSani('STOP')"
+            ontouchstart="sendSani('RIGHT')"    ontouchend="sendSani('STOP')">▶</button>
+
+          <div class="dp-empty"></div>
+          <button class="dp" id="bB"
+            onpointerdown="sendSani('BACKWARD')" onpointerup="sendSani('STOP')"
+            ontouchstart="sendSani('BACKWARD')"  ontouchend="sendSani('STOP')">▼</button>
+          <div class="dp-empty"></div>
+        </div>
+        <div class="warn-box" id="warnBox">⚠ FIRST START MANUAL MODE</div>
+ 
+        <!-- Speed Slider -->
+        <div style="margin-top:12px;">
+          <div class="speed-row">
+            <span class="speed-lbl">Speed</span>
+            <input type="range" min="80" max="255" value="200" oninput="setSpeed(this.value)" style="flex:1; accent-color:var(--accent);">
+            <span class="speed-val" id="spdVal">200</span>
+          </div>
+        </div>
+      </div>
+ 
+    </div><!-- /LEFT COL -->
+ 
+    <!-- RIGHT COLUMN -->
+    <div class="col">
+ 
+      <!-- Sanitization card -->
+      <div class="card">
+        <div class="card-lbl">Sanitization</div>
+        <div class="relay-col">
+          <button class="relay-btn" id="mistBtn" onclick="toggleRelay('MIST')">
+            <span>💧 Mist Sprayer</span>
+            <span class="relay-state" id="mistState">OFF</span>
+          </button>
+          <button class="relay-btn" id="uvBtn" onclick="toggleRelay('UV')">
+            <span>🔆 UV Light</span>
+            <span class="relay-state" id="uvState">OFF</span>
+          </button>
+        </div>
+      </div>
+ 
+      <!-- Sensors card -->
+      <div class="card">
+        <div class="card-lbl">Ultrasonic Sensors</div>
+        <div class="sensor-item">
+          <span class="sensor-name">FRONT</span>
+          <span class="sensor-val far" id="fVal">-- cm</span>
+        </div>
+        <div class="sensor-item" style="margin-bottom:0">
+          <span class="sensor-name">RIGHT</span>
+          <span class="sensor-val far" id="rVal">-- cm</span>
+        </div>
+      </div>
+ 
+    </div><!-- /RIGHT COL --> 
+  </div><!-- /main-grid -->
+ 
+  <div class="footer">SANIBOT v1.0 &nbsp;|&nbsp; ESP32-CAM ↔ ESP32 UART &nbsp;|&nbsp; Sensor poll: 500ms</div>
+ 
+</div><!-- /page -->
+
+<script src="script.js"></script>
+
+</body>
+</html>
