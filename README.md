@@ -13,7 +13,8 @@ SaniBot automates the process using a dual sanitization mode means use of UV-C l
 # Features
 
 Dual Sanitization System — combines UV-C light sterilization with mist-based disinfectant spraying for broader microbial coverage.
-Edge AI Human Detection — uses of COCO-SSD model running locally on ESP32-CAM to detect human presence in real time without cloud                                        dependency.
+Edge AI Human Detection — uses of COCO-SSD model running locally on ESP32-CAM to detect human presence in real time without being dependent on cloud.
+
 Automatic UV-C Safety Shutdown — instantly disables the UV-C light through a relay module whenever a human is detected.
 Switchable Operating Modes — toggle between AUTO mode (sensor-based autonomous movement) and MANUAL mode (user-controlled navigation) from                                the web page. 
 Obstacle Detection & Avoidance — front and side-mounted ultrasonic sensors continuously scan for obstacles detection.
